@@ -9,7 +9,8 @@ import SwiftUI
 
 struct DetailView: View {
     @ObservedObject var viewModel = WeatherViewModel()
-    @State var cityName = " "
+    @State var cityName = ""
+    
     var body: some View {
         TextField("Enter city name", text: $cityName)
             .padding()
