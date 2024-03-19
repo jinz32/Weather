@@ -12,8 +12,8 @@ struct WeatherModel: Codable {
     let wind: Wind
     let main: Main
     let weather: [Weather]
-    
 }
+
 struct Wind: Codable {
     let speed: Double
     let deg: Int
@@ -32,6 +32,8 @@ struct Main: Codable {
     let pressure: Int
     let humidity: Int
 }
+
+
 struct GroupWeatherResponses: Codable{
     let list: [WeatherModel]
 }

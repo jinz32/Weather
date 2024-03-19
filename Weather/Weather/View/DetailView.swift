@@ -15,8 +15,12 @@ struct DetailView: View {
         TextField("Enter city name", text: $cityName)
             .padding()
             .textFieldStyle(RoundedBorderTextFieldStyle())
+            .onAppear{
+                
+            }
             .onSubmit{
                 viewModel.getWeather(for: cityName)
+                
             }
         output()
     }
@@ -26,11 +30,9 @@ struct DetailView: View {
     }
     
     func output() -> some View {
-        let temperatureinKelvin = viewModel.weatherData?.main.temp ?? 0
-        let temperatureinCelcius = kelvinToCelsius(temperatureinKelvin)
         return VStack {
             Text(viewModel.weatherData?.name ?? "Unknown")
-            Text("Temperature: \(String(format: "%.2f°C", temperatureinCelcius))")
+            Text("Temperature: \(String(format: "%.2f°C", viewModel.weatherData?.main.temp ?? 0))")
             Text("Humidity: \(viewModel.weatherData?.main.humidity ?? 0)%")
             Text("Wind Speed: \(String(format: "%.2f", viewModel.weatherData?.wind.speed ?? 0)) mph")
             AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(viewModel.weatherData?.weather.last?.icon ?? "No Icon").png"))

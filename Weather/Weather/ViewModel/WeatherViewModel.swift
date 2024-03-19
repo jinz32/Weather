@@ -10,7 +10,7 @@ import SwiftUI
 
 class WeatherViewModel: ObservableObject {
     @Published var weatherData: WeatherModel?
-    @Published var iconImage: UIImage?
+    
     private let weatherservice = weatherService()
     
     func getWeather(for city: String) {
