@@ -7,24 +7,31 @@
 
 import Foundation
 
-struct WeatherModel: Codable {
+class WeatherModel: Codable, Equatable, Identifiable{
+    let id = UUID()
+    var isFavorited:Bool? = false
+    
+    static func == (lhs: WeatherModel, rhs: WeatherModel) -> Bool {
+        lhs.name == rhs.name
+    }
+    
     let name: String
     let wind: Wind
     let main: Main
     let weather: [Weather]
 }
 
-struct Wind: Codable {
+class Wind: Codable {
     let speed: Double
     let deg: Int
 }
 
-struct Weather: Codable {
+class Weather: Codable {
     let description: String
     let icon: String
 }
 
-struct Main: Codable {
+class Main: Codable {
     let temp: Double
     let feels_like: Double
     let temp_min: Double

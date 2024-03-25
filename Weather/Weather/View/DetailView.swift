@@ -8,54 +8,60 @@
 import SwiftUI
 
 struct DetailView: View {
-    @ObservedObject var viewModel = WeatherViewModel()
+    @ObservedObject var viewModel: DetailViewModel
     @State var cityName = ""
     
     var body: some View {
-        TextField("Enter city name", text: $cityName)
-            .padding()
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .onAppear{
-                
+        VStack{
+            TextField("Enter city name", text: $cityName)
+                .padding()
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .onSubmit{
+                    viewModel.fetchWeatherData(for: cityName)
+                }
+            if viewModel.isLoading {
+                ProgressView()
+                    .progressViewStyle(.circular)
+            }else{
+                weatherDetailStack()
             }
-            .onSubmit{
-                viewModel.getWeather(for: cityName)
-                
-            }
-        output()
-    }
-    
-    func kelvinToCelsius(_ kelvin: Double) -> Double {
-        return kelvin - 273.15
-    }
-    
-    func output() -> some View {
-        return VStack {
-            Text(viewModel.weatherData?.name ?? "Unknown")
-            Text("Temperature: \(String(format: "%.2f°C", viewModel.weatherData?.main.temp ?? 0))")
-            Text("Humidity: \(viewModel.weatherData?.main.humidity ?? 0)%")
-            Text("Wind Speed: \(String(format: "%.2f", viewModel.weatherData?.wind.speed ?? 0)) mph")
-            AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(viewModel.weatherData?.weather.last?.icon ?? "No Icon").png"))
+            Spacer()
+                .onAppear {
+                    if viewModel.repository.weatherData == nil {
+                        guard let cityName = viewModel.repository.loadPriorSearchData() else{
+                            viewModel.isLoading = false
+                            return
+                        }
+                        viewModel.fetchWeatherData(for: cityName)
+                    }
+                }
         }
     }
     
-    var searchButton: some View {
-        Button("search"){
-            viewModel.getWeather(for: cityName)
-        }
-        .frame(maxWidth: 90)
-        .background(Color.white)
-        .foregroundColor(.gray)
-        .cornerRadius(5)
-        .shadow(radius: 2)
-        .overlay(
-            RoundedRectangle(cornerRadius: 7)
-                .stroke(Color.gray, lineWidth: 2)
-        )
+    private func weatherDetailStack() -> some View {
+        guard let weatherData = viewModel.repository.weatherData else { return AnyView(Text("no data"))}
+        
+        return AnyView(VStack {
+            Text(weatherData.name)
+            Text("Temperature: \(String(format: "%.2f°C", weatherData.main.temp))")
+            Text("Humidity: \(weatherData.main.humidity)%")
+            Text("Wind Speed: \(String(format: "%.2f", weatherData.wind.speed)) mph")
+            AsyncImage(url: URL(string: "https://openweathermap.org/img/wn/\(weatherData.weather.last?.icon ?? "No Icon").png"))
+                .frame(width: 75, height: 75)
+            Button (action:{
+                if weatherData.isFavorited == true {
+                    viewModel.removeFavoriteCity(weatherData)
+                }else{
+                    viewModel.addFavoriteCity(weatherData)
+                }
+            }){
+                if weatherData.isFavorited == true {
+                    Image(systemName: "heart.fill")
+                }else{
+                    Image(systemName: "suit.heart")
+                }
+            }
+        })
     }
-}
-
-#Preview {
-    DetailView()
 }
 
